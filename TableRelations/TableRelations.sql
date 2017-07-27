@@ -1,0 +1,26 @@
+CREATE DATABASE DBTest
+
+USE DBTest
+
+-- Many-to-One/One-to-Many
+CREATE TABLE Mountains(
+	Id INT PRIMARY KEY IDENTITY(1, 1),
+	Name VARCHAR(50) NOT NULL
+)
+
+CREATE TABLE Peaks(
+	Id INT PRIMARY KEY IDENTITY(1, 1),
+	Name VARCHAR(50),
+	MountainId INT NOT NULL,
+	CONSTRAINT FK_Mountains
+	FOREIGN KEY (MountainId)
+	REFERENCES Mountains(Id)
+)
+
+INSERT INTO Mountains VALUES('Rila')
+
+INSERT INTO Peaks VALUES('Musala', 1)
+SELECT * FROM Peaks
+SELECT * FROM Mountains
+
+--
