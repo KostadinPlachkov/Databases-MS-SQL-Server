@@ -83,11 +83,28 @@ SET CarId = 1
 WHERE Id = 1
 
 -- Example
+/*
+Football Database
+Design a storage for football team information. It keeps up-to-date information 
+about each team, with its players and manager. A team can participate in many 
+leagues, both local and international. Players and managers are recorded with 
+thier first and last name and their salary.
+*/
+
+CREATE TABLE Managers(
+	Id INT PRIMARY KEY IDENTITY,
+	FirstName VARCHAR(50) NOT NULL,
+	LastName VARCHAR(50) NOT NULL,
+	Salary MONEY DEFAULT 0
+)
+
 CREATE TABLE Teams(
 	Id INT PRIMARY KEY IDENTITY,
 	Name VARCHAR(50) NOT NULL,
-	ManagerId INT,
-	CONSTRAINT
+	ManagerId INT UNIQUE,
+	CONSTRAINT FK_Managers
+	FOREIGN KEY (ManagerId)
+	REFERENCES Managers(Id)
 )
 
 CREATE TABLE Leagues(
@@ -115,14 +132,7 @@ CREATE TABLE Players(
 	LastName VARCHAR(50) NOT NULL,
 	Salary MONEY DEFAULT 0,
 	TeamId INT,
-	CONSTRAINT FK_Teams
+	CONSTRAINT FK_Players_Teams
 	FOREIGN KEY (TeamId)
 	REFERENCES Teams(Id)
-)
-
-CREATE TABLE Managers(
-	Id INT PRIMARY KEY IDENTITY,
-	FirstName VARCHAR(50) NOT NULL,
-	LastName VARCHAR(50) NOT NULL,
-	Salary MONEY DEFAULT 0
 )
