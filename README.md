@@ -5,3 +5,4 @@ Topics:
 * Basic CRUD  
 * Built-in Functions
 * Data Aggregation
+* Table Relations
