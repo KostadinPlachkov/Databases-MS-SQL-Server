@@ -136,3 +136,84 @@ CREATE TABLE Players(
 	FOREIGN KEY (TeamId)
 	REFERENCES Teams(Id)
 )
+
+-- Self-referencing Table
+ALTER TABLE Employees
+ADD CONSTRAINT FK_Employees_Employees
+FOREIGN KEY (ManagerId)
+REFERENCES Employees(Id)
+
+-- Retrieving Related Data
+USE DatabaseExample
+
+SELECT Departments.Name AS [Department]
+	,AVG(Salary) AS [Total Salary]
+FROM Employees
+JOIN Departments ON
+	Departments.DepartmentID = Employees.DepartmentID
+GROUP BY Departments.Name
+ORDER BY [Total Salary] DESC
+
+-- Cascade Operations
+-- Cascading allows when a change is made to certain entity, this change to apply to all related entities.
+
+-- Delete Cascade
+USE DBTest
+DROP TABLE Drivers
+DROP TABLE Cars
+
+CREATE TABLE Drivers(
+	DriverID INT PRIMARY KEY,
+	DriverName VARCHAR(50)
+)
+
+CREATE TABLE Cars(
+	CarID INT PRIMARY KEY,
+	DriverID INT,
+	CONSTRAINT FK_Car_Driver
+	FOREIGN KEY(DriverID)
+	REFERENCES Drivers(DriverID) ON DELETE CASCADE
+)
+
+INSERT INTO Drivers VALUES(1, 'John Cena')
+INSERT INTO Cars VALUES(1, 1)
+
+SELECT * FROM Drivers
+SELECT * FROM Cars
+
+DELETE FROM Drivers
+WHERE DriverID = 1
+-- Test
+SELECT * FROM Drivers
+SELECT * FROM Cars
+
+-- Update Cascade
+DROP TABLE Cars
+CREATE TABLE Cars(
+	CarID INT PRIMARY KEY,
+	DriverID INT,
+	CONSTRAINT FK_Car_Driver
+	FOREIGN KEY(DriverID)
+	REFERENCES Drivers(DriverID) ON UPDATE CASCADE
+)
+
+INSERT INTO Drivers VALUES(1, 'Bob')
+INSERT INTO Cars VALUES(1, 1)
+
+SELECT * FROM Drivers
+SELECT * FROM Cars
+
+UPDATE Drivers
+SET DriverID = 5
+WHERE DriverID = 1
+-- Test
+SELECT * FROM Drivers
+SELECT * FROM Cars
+
+CREATE TABLE Cars(
+	CarID INT PRIMARY KEY,
+	DriverID INT,
+	CONSTRAINT FK_Car_Driver
+	FOREIGN KEY(DriverID)
+	REFERENCES Drivers(DriverID) ON DELETE SET NULL  -- When deleted, NULL is set as a value.
+)
