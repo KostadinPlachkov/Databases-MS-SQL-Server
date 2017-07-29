@@ -23,3 +23,11 @@
     * Put the primary key as a first column
 * Exceptions
     * Entities that have well known ID, e.g. countries (BG, DE, US) and currencies (USD, EUR, BGN)
+# Relational Schema
+* Relational schema of a DB is the collection of:
+    * The schemas of all tables
+    * Relationships between the tables
+    * Any other database objects (e.g. constraints)
+* The relational schema describes the structure of the database
+    * Doesn't contain data, but metadata
+* Relational schemas are graphically displayed in Entity / Relationship diagrams (E/R Diagrams)
