@@ -6,3 +6,4 @@ Topics:
 * Built-in Functions
 * Data Aggregation
 * Table Relations
+* Subqueries and Joins
