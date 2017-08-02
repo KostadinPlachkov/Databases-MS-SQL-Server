@@ -61,3 +61,60 @@ ON t.TownID = a.TownID
 ORDER BY e.FirstName, e.LastName
 
 -- Subqueries 
+SELECT * FROM (SELECT FirstName + ' ' + LastName AS [Full Name]
+	,JobTitle
+FROM Employees
+WHERE DepartmentID = (SELECT DepartmentID FROM Departments
+WHERE Name = 'Sales')  -- DepartmentID of Sales is 3
+) AS EmployeesJobs
+WHERE EmployeesJobs.[Full Name] LIKE 'Brian%'
+
+SELECT [Salary Group], COUNT(*) AS [Employees] FROM
+(SELECT 
+CASE
+	WHEN Salary BETWEEN 10000 AND 20000 THEN '[10000 - 20000]'
+	WHEN Salary BETWEEN 20001 AND 30000 THEN '[20000 - 20000]'
+	WHEN Salary BETWEEN 30001 AND 40000 THEN '[30000 - 20000]'
+	WHEN Salary BETWEEN 40001 AND 50000 THEN '[40000 - 20000]'
+	WHEN Salary BETWEEN 50001 AND 60000 THEN '[50000 - 60000]'
+	ELSE '[60000+]'
+END AS [Salary Group]
+FROM Employees) AS salaryT
+GROUP BY [Salary Group]
+
+SELECT MIN(AverageSalary) AS MinAvgSalary FROM
+(SELECT DepartmentID, AVG(Salary) AS AverageSalary
+FROM Employees
+GROUP BY DepartmentID
+) AS AverageSalaryT
+
+SELECT * FROM
+(SELECT DepartmentID, AVG(Salary) AS AverageSalary,
+	DENSE_RANK() OVER (ORDER BY AVG(Salary)) AS Ranking  
+/* The difference between RANK() and DENSE_RANK() is that
+when we have identical values RANK() will give N numbers of the same ranking
+values and will continue with +N (Olympic ranking)(Example: 1, 2, 2, 4, 5),
+while DENSE_RANK will continue with the next rank value (Example: 1, 2, 2, 3, 4)
+*/
+FROM Employees
+GROUP BY DepartmentID) AS AvgSalRankingT
+WHERE Ranking = 15
+
+SELECT DepartmentID, ManagerID, Salary,
+ROW_NUMBER() OVER
+ (PARTITION BY DepartmentID ORDER BY Salary)
+ AS Ranking
+FROM Employees
+
+-- Common Table Expressions (CTE)
+/*
+WITH Employees_CTE(FullName, DepartmentName)
+AS
+(
+	SELECT e.FirstName + ' ' + e.LastName, d.Name
+	FROM Employees AS e
+	LEFT JOIN Departments AS d
+	ON d.DepartmentID = e.DepartmentID
+)
+SELECT * FROM Employees_CTE
+*/
