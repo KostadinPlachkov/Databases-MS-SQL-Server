@@ -107,7 +107,7 @@ ROW_NUMBER() OVER
 FROM Employees
 
 -- Common Table Expressions (CTE)
-/*
+
 WITH Employees_CTE(FullName, DepartmentName)
 AS
 (
@@ -117,4 +117,46 @@ AS
 	ON d.DepartmentID = e.DepartmentID
 )
 SELECT * FROM Employees_CTE
+
+-- Indices
+/*
+Indices can be built-in the table (clustered) or stored externally (non-clustered).
+Adding and deleting records in indexed tables is slow!
+Indices should be used for big tables only (e.g. 50 000 rows).
 */
+
+/*
+Clustered index is actually the data itself.
+Maximum 1 clustered index per table.
+*/
+CREATE CLUSTERED INDEX
+IX_EmployeesSalary_Salary
+ON EmployeesSalary(Salary)
+
+-- Test
+SELECT [Full Name]
+FROM EmployeesSalary
+WHERE Salary = 30000
+
+/*
+Much less valuable if table does not have a clustered index.
+A non-clustered index has pointers to the actual data rows.
+*/
+CREATE NONCLUSTERED INDEX
+IX_EmployeesSalary_FullName
+ON EmployeesSalary([Full Name])
+
+-- Test
+SELECT [Full Name]
+FROM EmployeesSalary
+WHERE [Full Name] = 'Kostadin Plachkov'
+
+CREATE NONCLUSTERED INDEX
+IX_EmployeesSalary_FullName_Salary
+ON EmployeesSalary([Full Name])
+INCLUDE(Salary)
+
+-- Test
+SELECT [Full Name], Salary
+FROM EmployeesSalary
+WHERE [Full Name] = 'Kostadin Plachkov'
