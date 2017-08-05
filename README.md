@@ -7,3 +7,4 @@ Topics:
 * Data Aggregation
 * Table Relations
 * Subqueries and Joins
+* Functions, Triggers and Transactions	
