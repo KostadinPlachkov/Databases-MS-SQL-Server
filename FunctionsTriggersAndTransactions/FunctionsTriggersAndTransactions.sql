@@ -148,3 +148,78 @@ by executing the system stored procedure sp_depends
 EXEC sp_depends 'usp_SelectEmployeesBySeniority'
 
 -- Parameterized Procedures
+ALTER PROC usp_SelectEmployeesBySeniority(@minYearsAtWork INT = 5)
+AS
+SELECT FirstName, LastName, HireDate,
+	DATEDIFF(YEAR, HireDate, GETDATE()) AS Years
+FROM Employees
+WHERE DATEDIFF(YEAR, HireDate, GETDATE()) > @minYearsAtWork
+ORDER BY HireDate
+
+EXEC usp_SelectEmployeesBySeniority 10  -- Or EXEC usp_SelectEmployeesBySeniority @minYearsAtWork = 10
+
+-- Returning values
+CREATE PROCEDURE usp_AddNumbers
+	@firstNumber INT,
+	@secondNumber INT,
+	@result INT OUTPUT
+AS
+SET @result = @firstNumber + @secondNumber
+
+DECLARE @answer INT
+EXECUTE usp_AddNumbers 5, 6, @answer OUTPUT
+SELECT @answer AS Answer
+
+-- Problem: Employees with Three Projects
+/*
+Create a precedure that assigns projects to employee.
+If the employee has more than 3 projects throw exception and rollback the changes.
+*/
+
+CREATE PROC usp_AssignProject
+	(@EmployeeId INT, @ProjectId INT)
+AS
+BEGIN TRANSACTION
+INSERT INTO EmployeesProjects VALUES(@EmployeeId, @ProjectId)
+IF((SELECT COUNT(*) FROM EmployeesProjects
+WHERE EmployeeID = @EmployeeId) > 3)
+BEGIN
+	ROLLBACK
+	RAISERROR('An Employee cannot have more than 3 projects assigned', 16, 1)  -- OR throw 50000, 'An Employee cannot have more than 3 projects assigned', 1
+END
+ELSE COMMIT
+
+EXEC usp_AssignProject 2, 5
+SELECT * FROM EmployeesProjects
+
+-- Problem: Withdraw Money
+/*
+Create a stored procedure usp_WithdrawMoney (AccountId, moneyAmount) that operate in transactions.
+Validate only if the account is existing and if not throw an exception.
+*/
+USE Bank
+CREATE PROC usp_WithdrawMoney
+	(@accountId INT, @moneyAmount MONEY)
+AS
+BEGIN TRANSACTION
+UPDATE Accounts
+SET Balance -= @moneyAmount
+WHERE Id = @accountId
+
+IF(@@ROWCOUNT <> 1)  -- Rows afected
+BEGIN
+	ROLLBACK
+	RAISERROR('Account does not exist', 16, 1)
+END
+ELSE IF((SELECT Balance FROM Accounts WHERE Id = @accountId) < 0)
+BEGIN
+	ROLLBACK
+	RAISERROR('Insufficient balance', 16, 1)
+END
+ELSE COMMIT
+
+EXEC usp_WithdrawMoney 5, 15
+EXEC usp_WithdrawMoney 11, 15
+EXEC usp_WithdrawMoney 21, 15
+
+-- Triggers
