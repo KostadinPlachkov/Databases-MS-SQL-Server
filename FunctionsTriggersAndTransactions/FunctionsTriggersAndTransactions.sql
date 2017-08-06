@@ -223,3 +223,52 @@ EXEC usp_WithdrawMoney 11, 15
 EXEC usp_WithdrawMoney 21, 15
 
 -- Triggers
+/*
+Triggers are very much like stored procedures.
+- Called in case of specific event.
+We do not call triggers explicitly.
+- Triggers are attached to a table.
+- Triggers are fired when a certain SQL statement is executed
+against the contents of the table.
+*/
+-- Instead of Trigger
+CREATE TABLE Accounts(
+	Username VARCHAR(10) NOT NULL PRIMARY KEY,
+	[Password] VARCHAR(50) NOT NULL,
+	Active VARCHAR(1) NOT NULL DEFAULT 'Y'
+)
+
+CREATE TRIGGER tr_AccountsDelete ON Accounts
+	INSTEAD OF DELETE
+AS
+	UPDATE a SET Active = 'N'
+	FROM Accounts AS a JOIN deleted d
+		ON d.Username = a.Username
+	WHERE a.Active = 'Y'
+
+INSERT INTO Accounts VALUES('John', '123456', DEFAULT)
+INSERT INTO Accounts VALUES('Maya', 'BeastMaster64', DEFAULT)
+INSERT INTO Accounts VALUES('Tyler', 'amthebest', DEFAULT)
+
+SELECT * FROM Accounts
+
+DELETE FROM Accounts
+WHERE Username = 'John'
+
+SELECT * FROM Accounts
+
+-- After Trigger
+USE DatabaseExample
+CREATE TRIGGER tr_TownsInsert ON Towns FOR INSERT
+AS
+	IF(EXISTS(SELECT * FROM inserted WHERE Name IS NULL)
+	OR
+	EXISTS(SELECT * FROM inserted WHERE LEN(Name) = 0))
+	BEGIN 
+		RAISERROR('Town name cannot be empty.', 16, 1)
+		ROLLBACK TRAN
+		RETURN
+	END
+
+INSERT INTO Towns VALUES('Plovdiv'), ('Vraca'), ('')  -- Not working
+INSERT INTO Towns VALUES('Plovdiv'), ('Vraca')  -- Working
