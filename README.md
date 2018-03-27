@@ -1,10 +1,10 @@
 # Databases MS SQL Server
-Topics:
+Table of Contents:
 * Database Introduction
-* Data Definition and Datatypes
+* Data Definition and Data Types
 * Basic CRUD  
 * Built-in Functions
 * Data Aggregation
 * Table Relations
-* Subqueries and Joins
+* Sub-queries and Joins
 * Functions, Triggers and Transactions	
